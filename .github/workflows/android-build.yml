@@ -46,11 +46,21 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      # github.run_number strictly increases on every run of this workflow, so each build's
+      # versionCode is always higher than the last - combined with the fixed keystore in
+      # app/build.gradle, that's what lets a freshly downloaded APK install as an update over
+      # whatever was installed before, instead of requiring an uninstall first.
       - name: Build debug APK
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: |
+          ./gradlew assembleDebug --no-daemon --stacktrace \
+            -PappVersionCode=${{ github.run_number }} \
+            -PappVersionName=1.0.${{ github.run_number }}
 
       - name: Build release APK (unsigned, debug-signed)
-        run: ./gradlew assembleRelease --no-daemon --stacktrace
+        run: |
+          ./gradlew assembleRelease --no-daemon --stacktrace \
+            -PappVersionCode=${{ github.run_number }} \
+            -PappVersionName=1.0.${{ github.run_number }}
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4

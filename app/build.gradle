@@ -3,16 +3,31 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+// CI passes -PappVersionCode/-PappVersionName so every build is a strictly higher versionCode
+// than the last, signed with the same fixed keystore below - that combination is what lets a
+// freshly downloaded APK install as an in-place update instead of needing an uninstall first.
+def ciVersionCode = project.hasProperty('appVersionCode') ? (project.property('appVersionCode') as Integer) : 1
+def ciVersionName = project.hasProperty('appVersionName') ? project.property('appVersionName') as String : "1.0.0"
+
 android {
     namespace 'com.traincompanion.app'
     compileSdk 34
+
+    signingConfigs {
+        debug {
+            storeFile file('keystore/train-companion.keystore')
+            storePassword 'traincompanion123'
+            keyAlias 'traincompanion'
+            keyPassword 'traincompanion123'
+        }
+    }
 
     defaultConfig {
         applicationId "com.traincompanion.app"
         minSdk 26
         targetSdk 34
-        versionCode 1
-        versionName "1.0.0"
+        versionCode ciVersionCode
+        versionName ciVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

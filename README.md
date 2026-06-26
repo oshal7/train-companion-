@@ -15,11 +15,17 @@ Android Studio install is required to produce an installable build.
    **Actions -> Android APK Build**.
 2. Open the workflow run and download the `train-companion-debug-apk`
    artifact (or `train-companion-release-apk`). Both are signed with the
-   Gradle debug keystore, so they install directly on a device with
-   "install unknown apps" enabled — no separate signing step is needed
-   for v1.
+   fixed keystore checked into `app/keystore/`, so they install directly
+   on a device with "install unknown apps" enabled — no separate signing
+   step is needed for v1.
 3. Pushing a tag like `v1.0.0` also attaches both APKs to a GitHub
    Release.
+
+Every build is signed with the same key and gets a strictly higher
+`versionCode` (driven by the GitHub Actions run number). That means
+installing a newly downloaded APK over an existing install just
+**updates it in place** — no need to uninstall the old one first, and
+your stored documents/alarms/settings carry over.
 
 ## Feature map (PRD -> code)
 
