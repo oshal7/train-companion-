@@ -31,8 +31,10 @@ fun SettingsScreen(container: AppContainer) {
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Text("Rail-data provider", style = MaterialTheme.typography.headlineSmall)
         Text(
-            "IRCTC/Indian Railways has no free official API. Pick a paid third-party " +
-                "aggregator and paste your key, or keep using sample data.",
+            "IRCTC/Indian Railways has no free official API. IndianRailAPI.com offers a free " +
+                "100-requests/day tier (signup required) for live status + PNR; the free " +
+                "community PNR lookup needs no signup but only covers PNR; RailwayAPI.com is " +
+                "a paid option. Or keep using sample data.",
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(Modifier.height(12.dp))
@@ -52,7 +54,8 @@ fun SettingsScreen(container: AppContainer) {
             value = settings.apiKey,
             onValueChange = { settings = settings.copy(apiKey = it) },
             label = { Text("API key") },
-            enabled = settings.providerType != RailProviderType.MOCK,
+            enabled = settings.providerType == RailProviderType.RAILWAY_API ||
+                settings.providerType == RailProviderType.INDIAN_RAIL_API,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(Modifier.height(16.dp))
@@ -71,6 +74,7 @@ fun SettingsScreen(container: AppContainer) {
 
 private fun providerLabel(provider: RailProviderType): String = when (provider) {
     RailProviderType.MOCK -> "Sample data (no key needed)"
-    RailProviderType.RAILWAY_API -> "RailwayAPI.com"
-    RailProviderType.INDIAN_RAIL_API -> "IndianRailAPI.com"
+    RailProviderType.RAILWAY_API -> "RailwayAPI.com (paid, key required)"
+    RailProviderType.INDIAN_RAIL_API -> "IndianRailAPI.com (free tier, key required)"
+    RailProviderType.COMMUNITY_PNR -> "Free community PNR lookup (no key, PNR only)"
 }

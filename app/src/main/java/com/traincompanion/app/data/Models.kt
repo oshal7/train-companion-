@@ -70,7 +70,7 @@ data class ParsedTicketInfo(
     val travelDateRaw: String? = null
 )
 
-enum class RailProviderType { MOCK, RAILWAY_API, INDIAN_RAIL_API }
+enum class RailProviderType { MOCK, RAILWAY_API, INDIAN_RAIL_API, COMMUNITY_PNR }
 
 data class AppSettings(
     val providerType: RailProviderType = RailProviderType.MOCK,

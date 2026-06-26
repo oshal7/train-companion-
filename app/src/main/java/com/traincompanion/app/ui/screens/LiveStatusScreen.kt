@@ -78,7 +78,7 @@ fun LiveStatusScreen(container: AppContainer) {
                 status != null -> TrainStatusCard(status!!)
                 else -> Text(
                     "Search any train by number or name to see its live running status. " +
-                        "Sample data is shown until a real provider key is set in Settings.",
+                        "Sample data is shown until a real rail-data provider is set up in Settings.",
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

@@ -4,10 +4,14 @@ import com.traincompanion.app.data.AppSettings
 import com.traincompanion.app.data.RailProviderType
 
 object RailDataProviderFactory {
-    fun create(settings: AppSettings): RailDataProvider =
-        if (settings.providerType == RailProviderType.MOCK || settings.apiKey.isBlank()) {
-            MockRailDataProvider()
-        } else {
-            RailApiProvider(settings.providerType, settings.apiKey)
-        }
+    fun create(settings: AppSettings): RailDataProvider = when (settings.providerType) {
+        RailProviderType.MOCK -> MockRailDataProvider()
+        RailProviderType.COMMUNITY_PNR -> CommunityPnrProvider()
+        RailProviderType.RAILWAY_API, RailProviderType.INDIAN_RAIL_API ->
+            if (settings.apiKey.isBlank()) {
+                MockRailDataProvider()
+            } else {
+                RailApiProvider(settings.providerType, settings.apiKey)
+            }
+    }
 }

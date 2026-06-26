@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- pnrapi.dfth.in (free community PNR lookup) is HTTP-only; every other request the app
+         makes uses HTTPS under the base-config cleartext-disabled default below. -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">pnrapi.dfth.in</domain>
+    </domain-config>
+    <base-config cleartextTrafficPermitted="false" />
+</network-security-config>

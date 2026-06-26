@@ -77,7 +77,7 @@ fun PnrScreen(container: AppContainer) {
             record != null -> PnrCard(record!!)
             else -> Text(
                 "Enter the PNR from your ticket to check booking status, coach, berth and class. " +
-                    "Sample data is shown until a real provider key is set in Settings."
+                    "Sample data is shown until a real rail-data provider is set up in Settings."
             )
         }
     }

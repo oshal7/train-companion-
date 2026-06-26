@@ -37,18 +37,36 @@ Android Studio install is required to produce an installable build.
 IRCTC/Indian Railways has no free official live-status/PNR API. The app
 ships with `RailProviderType.MOCK` enabled by default, which generates
 deterministic sample data so every screen is fully usable and demoable
-offline with zero setup.
+offline with zero setup. Three real-data options are wired in via
+`rail/RailDataProviderFactory.kt`, selectable in the **Settings** tab:
+
+| Provider | Cost | Setup | Covers |
+|---|---|---|---|
+| [IndianRailAPI.com](https://indianrailapi.com) | Free "Starter" tier, 100 requests/day | Signup + API key | Live status + PNR |
+| Free community PNR lookup (`pnrapi.dfth.in`) | Free | None — no key, no signup | PNR only |
+| [RailwayAPI.com](https://railwayapi.com) | Paid | Signup + API key | Live status + PNR |
 
 To use real data:
 
-1. Sign up with a paid aggregator — e.g. [RailwayAPI.com](https://railwayapi.com)
-   or [IndianRailAPI.com](https://indianrailapi.com) — and get an API key.
-2. Open the **Settings** tab in the app, pick the provider, and paste the
-   key. New requests immediately switch to that provider.
-3. `rail/RailApiProvider.kt` contains the HTTP client and response
-   parsing for both providers. Their exact JSON schema may need small
-   adjustments once you have live credentials to test against — the
-   parsing functions are isolated and documented for that purpose.
+1. **Fastest, no signup**: in Settings, select "Free community PNR
+   lookup" — PNR status starts returning real data immediately. It's an
+   informal, community-run proxy ([source](https://github.com/sanketsaurav/pnrapi))
+   with no uptime guarantee, served over plain HTTP, so the app scopes a
+   cleartext exception to just that domain in
+   `res/xml/network_security_config.xml` — every other request still
+   requires HTTPS.
+2. **Free, with live status**: sign up for IndianRailAPI.com's free
+   tier, select it in Settings, and paste the key. Covers both live
+   running status and PNR within the 100-requests/day cap.
+3. **Paid, most reliable**: sign up with RailwayAPI.com for the same
+   coverage without the free-tier rate limit.
+4. `rail/RailApiProvider.kt` contains the HTTP client and provider-specific
+   response parsing for IndianRailAPI.com and RailwayAPI.com;
+   `rail/CommunityPnrProvider.kt` and the shared `rail/PnrSchemaParsing.kt`
+   handle the free PNR-only lookup. All three degrade gracefully (defensive
+   `optString`/`optInt` field access) since some response fields aren't
+   fully documented by the providers — adjust the parsing functions if a
+   provider changes its schema.
 
 ## Security & privacy
 
@@ -99,7 +117,11 @@ Project layout:
 
 ## Known limitations (v1)
 
-- Mock data is used until a real provider API key is configured.
+- Mock data is used until a real provider is configured in Settings (a
+  free, no-signup option is available — see "Rail data provider" above).
+- The free community PNR lookup is an informal third-party service with
+  no uptime guarantee; the free IndianRailAPI.com tier is rate-limited
+  to 100 requests/day.
 - Ticket parsing is paste-text-based, not OCR/photo-based.
 - Release APK is debug-signed (no production signing key configured
   yet); replace `signingConfigs.debug` in `app/build.gradle` with a real
