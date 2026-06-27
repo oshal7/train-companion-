@@ -31,7 +31,7 @@ your stored documents/alarms/settings carry over.
 
 | PRD section | Feature | Implementation |
 |---|---|---|
-| 3.1 | Live running status | `rail/RailDataProvider*`, `ui/screens/LiveStatusScreen.kt` |
+| 3.1 | Live running status | `rail/RailDataProvider*`, `ui/screens/LiveStatusScreen.kt`; optional offline GPS refinement via `rail/gps/` |
 | 3.2 | PNR / seat / coach / berth | `pnrStatus()` in the provider layer, `ui/screens/PnrScreen.kt` |
 | 3.3 | Platform alerts | Surfaced as part of `TrainStatus.platform` / route stops in the live status feed (no separate API) |
 | 3.4 | Offline encrypted ticket & Aadhaar storage | `data/SecureFileStore.kt` (Jetpack `EncryptedFile`), `ui/screens/DocumentsScreen.kt` |
@@ -73,6 +73,31 @@ To use real data:
    `optString`/`optInt` field access) since some response fields aren't
    fully documented by the providers — adjust the parsing functions if a
    provider changes its schema.
+
+## GPS offline tracking (no API, no internet)
+
+Apps like "Where is my Train" mostly work without calling any live-status
+API at all: they use the phone's own GPS plus a bundled database of station
+coordinates to figure out where the train physically is. The Live Status
+screen has a **"Track with GPS (offline, no internet)"** button that does
+the same thing:
+
+- `rail/gps/StationCoordinates.kt` bundles ~100 major Indian Railways
+  junctions with approximate lat/lon, shipped in the APK — no download, no
+  API key, no network call.
+- `rail/gps/GpsPositionEstimator.kt` takes the route already returned by
+  whichever provider is active (mock or real), matches its station names
+  against that bundled list, and uses the device's current GPS fix
+  (haversine distance) to report the nearest matched station and distance
+  to the next one — entirely on-device.
+- This only refines *position within an already-known route*; it can't
+  replace PNR lookups (booking/coach/berth only exists in IRCTC's systems)
+  and it can't discover a route for an unrecognized train number on its
+  own.
+- Coverage is best-effort: routes through smaller halts not in the bundled
+  list will show a partial or no match. Expanding the list (or swapping it
+  for a real open dataset, e.g. OpenStreetMap rail data) is a natural
+  follow-up.
 
 ## Security & privacy
 

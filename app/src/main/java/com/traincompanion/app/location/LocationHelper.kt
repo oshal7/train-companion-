@@ -22,20 +22,21 @@ object LocationHelper {
             PackageManager.PERMISSION_GRANTED
 
     @SuppressLint("MissingPermission")
-    suspend fun getCurrentMapsLink(context: Context): String? {
+    suspend fun getCurrentLatLng(context: Context): Pair<Double, Double>? {
         if (!hasLocationPermission(context)) return null
         val client = LocationServices.getFusedLocationProviderClient(context)
         return suspendCancellableCoroutine { cont ->
             client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener { location ->
-                    if (location != null) {
-                        cont.resume("https://maps.google.com/?q=${location.latitude},${location.longitude}")
-                    } else {
-                        cont.resume(null)
-                    }
+                    cont.resume(location?.let { it.latitude to it.longitude })
                 }
                 .addOnFailureListener { cont.resume(null) }
         }
+    }
+
+    suspend fun getCurrentMapsLink(context: Context): String? {
+        val (lat, lon) = getCurrentLatLng(context) ?: return null
+        return "https://maps.google.com/?q=$lat,$lon"
     }
 
     fun buildShareIntent(mapsLink: String, message: String): Intent =
